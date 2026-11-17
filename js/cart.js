@@ -1,7 +1,8 @@
+
 // SWAAD EXPRESS CART AND BILL LOGIC
 // The cart is a plain object: { dishId: quantity }.
 
-const MAX_PER_DISH = 10;   // F2 will lower this to 10 (kitchen capacity)
+const MAX_PER_DISH = 10;   // Kitchen capacity
 
 // "₹249" -> 249
 function priceValue(price) {
@@ -25,20 +26,44 @@ function changeQty(cart, id, delta) {
 function cartLines(cart, menu) {
   return menu
     .filter((item) => cart[item.id])
-    .map((item) => ({ item, qty: cart[item.id], lineTotal: priceValue(item.price) * cart[item.id] }));
+    .map((item) => ({
+      item,
+      qty: cart[item.id],
+      lineTotal: priceValue(item.price) * cart[item.id]
+    }));
 }
 
-// The food total: the sum of every line.
+// The food total: sum of every line.
 function cartTotal(cart, menu) {
-  return cartLines(cart, menu).reduce((sum, line) => sum + line.lineTotal, 0);
+  return cartLines(cart, menu).reduce(
+    (sum, line) => sum + line.lineTotal,
+    0
+  );
 }
 
-// The bill. For now: food total only. (CR2 adds GST to this function.)
+// CR2: Calculate GST at 5% and generate the final bill.
 function billSummary(cart, menu) {
   const food = cartTotal(cart, menu);
-  return { food: food, total: food };
+  const gstRate = 0.05;
+  const gst = food * gstRate;
+  const total = food + gst;
+
+  return {
+    food: food,
+    gstRate: gstRate,
+    gst: gst,
+    total: total
+  };
 }
 
 if (typeof module !== "undefined") {
-  module.exports = { MAX_PER_DISH, priceValue, addToCart, changeQty, cartLines, cartTotal, billSummary };
+  module.exports = {
+    MAX_PER_DISH,
+    priceValue,
+    addToCart,
+    changeQty,
+    cartLines,
+    cartTotal,
+    billSummary
+  };
 }
